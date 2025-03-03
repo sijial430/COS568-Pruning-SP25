@@ -7,6 +7,7 @@ from Experiments.theory import unit_conservation
 from Experiments.theory import layer_conservation
 from Experiments.theory import imp_conservation
 from Experiments.theory import schedule_conservation
+import timeit
 
 if __name__ == '__main__':
 
@@ -123,9 +124,10 @@ if __name__ == '__main__':
         except FileExistsError:
             val = ""
             while val not in ['yes', 'no']:
-                val = input("Experiment '{}' with expid '{}' exists.  Overwrite (yes/no)? ".format(args.experiment, args.expid))
-            if val == 'no':
-                quit()
+                # val = input("Experiment '{}' with expid '{}' exists.  Overwrite (yes/no)? ".format(args.experiment, args.expid))
+                val = "yes"
+            # if val == 'no':
+            #   quit()
 
     ## Save Args ##
     if args.save:
@@ -133,12 +135,14 @@ if __name__ == '__main__':
             json.dump(args.__dict__, f, sort_keys=True, indent=4)
 
     ## Run Experiment ##
+    start = timeit.default_timer()
+    
     if args.experiment == 'singleshot':
         singleshot.run(args)
     if args.experiment == 'multishot':
         multishot.run(args)
     if args.experiment == 'unit-conservation':
-    	unit_conservation.run(args)
+        unit_conservation.run(args)
     if args.experiment == 'layer-conservation':
         layer_conservation.run(args)
     if args.experiment == 'imp-conservation':
@@ -146,3 +150,5 @@ if __name__ == '__main__':
     if args.experiment == 'schedule-conservation':
         schedule_conservation.run(args)
 
+    end = timeit.default_timer()
+    print(f"Overall Time: {end - start} seconds")

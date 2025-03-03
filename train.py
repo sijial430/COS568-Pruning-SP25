@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 from torch.amp import autocast, GradScaler
-
+import time
 
 def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interval=10, use_amp=False):
     model.train()
@@ -61,14 +61,16 @@ def eval(model, loss, dataloader, device, verbose):
 
 def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader, device, epochs, verbose, use_amp=False):
     test_loss, accuracy1, accuracy5 = eval(model, loss, test_loader, device, verbose)
-    rows = [[np.nan, test_loss, accuracy1, accuracy5]]
+    rows = [[np.nan, test_loss, accuracy1, accuracy5, np.nan]]
     for epoch in tqdm(range(epochs)):
         train_loss = train(model, loss, optimizer, train_loader, device, epoch, verbose, use_amp=use_amp)
+        start_time = time.time()
         test_loss, accuracy1, accuracy5 = eval(model, loss, test_loader, device, verbose)
-        row = [train_loss, test_loss, accuracy1, accuracy5]
+        end_time = time.time()
+        row = [train_loss, test_loss, accuracy1, accuracy5, end_time - start_time]
         scheduler.step()
         rows.append(row)
-    columns = ['train_loss', 'test_loss', 'top1_accuracy', 'top5_accuracy']
+    columns = ['train_loss', 'test_loss', 'top1_accuracy', 'top5_accuracy', 'testing_time']
     return pd.DataFrame(rows, columns=columns)
 
 
